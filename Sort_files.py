@@ -1,9 +1,5 @@
 import os
 import shutil
-from pathlib import Path
-
-# import zipfile
-# import tarfile
 import sys
 
 c_symbols = "абвгдеёжзийклмнопрстуфхцчшщъыьэюяєіїґ!@$%^&*()-+=:;'"
@@ -130,33 +126,19 @@ def sort_files(folder_path):
         for file in files:
             file_path = os.path.join(root, file)
             archive_name = file.split(".")[0]
-            archive_folder = os.path.join(archives_folder, archive_name)  
+            archive_folder = os.path.join(archives_folder, archive_name)
             # maybe archive_folder = archives_folder would be enough since the archive folder is created when unpacking?
 
-            # Create a subfolder for the archive if it doesn't exist
+            # Create a subfolder for the archive if it doesn't exist - no need
             # if not os.path.exists(archive_folder):
             #     os.makedirs(archive_folder)
 
             # Unpack the archive and move its contents to the subfolder
-            # if file.endswith(".zip"):
-            #     with zipfile.ZipFile(file_path, "r") as zip_ref:
-            #         try:
-            #             zip_ref.extractall(archive_folder)  # names not nornmalized
-            #             os.remove(file_path)
-            #         except IOError as e:
-            #             print(f"Archive {file_path} corrupted!", e)
-            # elif file.endswith(".tar") or file.endswith(".gz"):  # never tested
-            #     with tarfile.open(file_path, "r") as tar_ref:  # never tested
-            #         try:
-            #             tar_ref.extractall(archive_folder)  # never tested
-            #             os.remove(file_path)
-            #         except IOError as e:
-            #             print(f"Archive {file_path} corrupted!", e)
             try:
                 shutil.unpack_archive(file_path, archive_folder)
+                os.remove(file_path)
             except Exception as e:
                 print(f"Extraction failed for '{file_path}': {e}")
-            os.remove(file_path)
 
     # Remove empty folders
     for root, dirs, _ in os.walk(folder_path, topdown=False):
@@ -180,7 +162,12 @@ if __name__ == "__main__":
         folder_to_sort = input("Enter the folder path: ")
     else:
         folder_to_sort = sys.argv[1]
-    response = sort_files(folder_to_sort)
-    print(
-        f"Files at {folder_to_sort} sorted successfully, {response[0]} files relocated, unknown extensions: {response[1]}"
-    )
+
+    if os.path.isdir(folder_to_sort):
+        response = sort_files(folder_to_sort)
+
+        print(f"Files at {folder_to_sort} sorted successfully, {response[0]} files relocated")
+        if response[1]:
+            print(f"Unknown extensions: {response[1]}")
+    else:
+        print(f"{folder_to_sort} is not a folder")

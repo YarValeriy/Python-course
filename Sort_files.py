@@ -2,7 +2,7 @@ import os
 import shutil
 import sys
 
-c_symbols = "абвгдеёжзийклмнопрстуфхцчшщъыьэюяєіїґ!@$%^&*()-+=:;'"
+c_symbols = "абвгдеёжзийклмнопрстуфхцчшщъыьэюяєіїґ!@$%^&*()-+=:;' "
 l_symbols = (
     "a",
     "b",
@@ -56,6 +56,7 @@ l_symbols = (
     "_",
     "_",
     "_",
+    "_",
 )
 
 trans = {}
@@ -72,14 +73,14 @@ def sort_files(folder_path):
     n_files = 0
     # Define folder names for each category
     categories = {
-        "Images": ["JPEG", "PNG", "JPG", "SVG", "BMP"],
-        "Video": ["AVI", "MP4", "MOV", "MKV"],
-        "Documents": ["DOC", "DOCX", "ODT", "TXT", "PDF", "XLS", "XLSX", "PPT", "PPTX"],
-        "Audio": ["MP3", "OGG", "WAV", "AMR", "M4A"],
-        "Archives": ["ZIP", "GZ", "TAR"],
-        "Code": ["PY", "CPP", "CXX", "CC"],
-        "Markup": ["XML", "HTML", "CSS"],
-        "Unknown": [],
+        "images": ["JPEG", "PNG", "JPG", "SVG", "BMP"],
+        "video": ["AVI", "MP4", "MOV", "MKV"],
+        "documents": ["DOC", "DOCX", "ODT", "TXT", "PDF", "XLS", "XLSX", "PPT", "PPTX"],
+        "audio": ["MP3", "OGG", "WAV", "AMR", "M4A"],
+        "archives": ["ZIP", "GZ", "TAR"],
+        "code": ["PY", "CPP", "CXX", "CC"],
+        "markup": ["XML", "HTML", "CSS"],
+        "unknown": [],
     }
 
     # Create folders if they don't exist
@@ -103,17 +104,17 @@ def sort_files(folder_path):
                 n_file = normalize(split_name[0])
             else:
                 file_ext = split_name[-1].upper()
-                n_file = normalize(split_name[0]) + "." + file_ext.lower()
+                n_file = normalize(split_name[0]) + "." + split_name[-1]
             file_path = os.path.join(root, file)
 
             # Find the category for the file
-            file_category = "Unknown"
+            file_category = "unknown"
             for category, extensions in categories.items():
                 if file_ext in extensions:
                     file_category = category
                     break
-            if file_category == "Unknown":
-                categories["Unknown"].append(file_ext)
+            if file_category == "unknown":
+                categories["unknown"].append(file_ext)
 
             # Move the file to the appropriate folder
             destination_folder = os.path.join(folder_path, file_category)
@@ -154,7 +155,7 @@ def sort_files(folder_path):
                 # os.rmdir(folder_path)
                 shutil.rmtree(folder_path, ignore_errors=True)
                 # print(f"{folder_path} deleted")
-    return (n_files, set(categories["Unknown"]))
+    return (n_files, set(categories["unknown"]))
 
 
 if __name__ == "__main__":
@@ -166,7 +167,9 @@ if __name__ == "__main__":
     if os.path.isdir(folder_to_sort):
         response = sort_files(folder_to_sort)
 
-        print(f"Files at {folder_to_sort} sorted successfully, {response[0]} files relocated")
+        print(
+            f"Files at {folder_to_sort} sorted successfully, {response[0]} files relocated"
+        )
         if response[1]:
             print(f"Unknown extensions: {response[1]}")
     else:

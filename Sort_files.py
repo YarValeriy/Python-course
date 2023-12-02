@@ -1,7 +1,9 @@
 import os
 import shutil
-import zipfile
-import tarfile
+from pathlib import Path
+
+# import zipfile
+# import tarfile
 import sys
 
 c_symbols = "абвгдеёжзийклмнопрстуфхцчшщъыьэюяєіїґ!@$%^&*()-+=:;'"
@@ -74,9 +76,9 @@ def sort_files(folder_path):
     n_files = 0
     # Define folder names for each category
     categories = {
-        "Images": ["JPEG", "PNG", "JPG", "SVG"],
+        "Images": ["JPEG", "PNG", "JPG", "SVG", "BMP"],
         "Video": ["AVI", "MP4", "MOV", "MKV"],
-        "Documents": ["DOC", "DOCX", "TXT", "PDF", "XLS", "XLSX", "PPT", "PPTX"],
+        "Documents": ["DOC", "DOCX", "ODT", "TXT", "PDF", "XLS", "XLSX", "PPT", "PPTX"],
         "Audio": ["MP3", "OGG", "WAV", "AMR", "M4A"],
         "Archives": ["ZIP", "GZ", "TAR"],
         "Code": ["PY", "CPP", "CXX", "CC"],
@@ -128,28 +130,33 @@ def sort_files(folder_path):
         for file in files:
             file_path = os.path.join(root, file)
             archive_name = file.split(".")[0]
-            archive_folder = os.path.join(archives_folder, archive_name)
-            # print(archive_folder)
+            archive_folder = os.path.join(archives_folder, archive_name)  
+            # maybe archive_folder = archives_folder would be enough since the archive folder is created when unpacking?
 
             # Create a subfolder for the archive if it doesn't exist
-            if not os.path.exists(archive_folder):
-                os.makedirs(archive_folder)
+            # if not os.path.exists(archive_folder):
+            #     os.makedirs(archive_folder)
 
             # Unpack the archive and move its contents to the subfolder
-            if file.endswith(".zip"):
-                with zipfile.ZipFile(file_path, "r") as zip_ref:
-                    try:
-                        zip_ref.extractall(archive_folder)  # names not nornmalized
-                        os.remove(file_path)
-                    except IOError as e:
-                        print(f"Archive {file_path} corrupted!", e)
-            elif file.endswith(".tar") or file.endswith(".gz"):  # never tested
-                with tarfile.open(file_path, "r") as tar_ref:  # never tested
-                    try:
-                        tar_ref.extractall(archive_folder)  # never tested
-                        os.remove(file_path)
-                    except IOError as e:
-                        print(f"Archive {file_path} corrupted!", e)
+            # if file.endswith(".zip"):
+            #     with zipfile.ZipFile(file_path, "r") as zip_ref:
+            #         try:
+            #             zip_ref.extractall(archive_folder)  # names not nornmalized
+            #             os.remove(file_path)
+            #         except IOError as e:
+            #             print(f"Archive {file_path} corrupted!", e)
+            # elif file.endswith(".tar") or file.endswith(".gz"):  # never tested
+            #     with tarfile.open(file_path, "r") as tar_ref:  # never tested
+            #         try:
+            #             tar_ref.extractall(archive_folder)  # never tested
+            #             os.remove(file_path)
+            #         except IOError as e:
+            #             print(f"Archive {file_path} corrupted!", e)
+            try:
+                shutil.unpack_archive(file_path, archive_folder)
+            except Exception as e:
+                print(f"Extraction failed for '{file_path}': {e}")
+            os.remove(file_path)
 
     # Remove empty folders
     for root, dirs, _ in os.walk(folder_path, topdown=False):
@@ -165,7 +172,7 @@ def sort_files(folder_path):
                 # os.rmdir(folder_path)
                 shutil.rmtree(folder_path, ignore_errors=True)
                 # print(f"{folder_path} deleted")
-    return (n_files, categories["Unknown"])
+    return (n_files, set(categories["Unknown"]))
 
 
 if __name__ == "__main__":

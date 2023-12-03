@@ -70,7 +70,6 @@ def normalize(string):
 
 
 def sort_files(folder_path):
-    n_files = 0
     # Define folder names for each category
     categories = {
         "images": ["JPEG", "PNG", "JPG", "SVG", "BMP"],
@@ -82,6 +81,8 @@ def sort_files(folder_path):
         "markup": ["XML", "HTML", "CSS"],
         "unknown": [],
     }
+
+    # file_moved = {key: [] for key, value in categories.items()}
 
     # Create folders if they don't exist
     for category in categories:
@@ -113,13 +114,16 @@ def sort_files(folder_path):
                 if file_ext in extensions:
                     file_category = category
                     break
-            if file_category == "unknown":
+            if file_category == "unknown" and (file_ext not in categories["unknown"]):
                 categories["unknown"].append(file_ext)
 
             # Move the file to the appropriate folder
             destination_folder = os.path.join(folder_path, file_category)
             shutil.move(file_path, os.path.join(destination_folder, n_file))
-            n_files += 1
+            print(
+                f"File {file_path} moved to {destination_folder} as {n_file}"
+            )  # to meet requirements "List of relocated files by categories"
+            # file_moved[file_category].append(n_file)
 
     # Unpack archive files
     archives_folder = os.path.join(folder_path, "Archives")
@@ -137,6 +141,7 @@ def sort_files(folder_path):
             # Unpack the archive and move its contents to the subfolder
             try:
                 shutil.unpack_archive(file_path, archive_folder)
+                print(f"Archive {file_path} unpacked to {archive_folder}")
                 os.remove(file_path)
             except Exception as e:
                 print(f"Extraction failed for '{file_path}': {e}")
@@ -154,8 +159,9 @@ def sort_files(folder_path):
             if not sub_dirs:
                 # os.rmdir(folder_path)
                 shutil.rmtree(folder_path, ignore_errors=True)
-                # print(f"{folder_path} deleted")
-    return (n_files, set(categories["unknown"]))
+                print(f"Empty {folder_path} deleted")
+
+    return categories
 
 
 if __name__ == "__main__":
@@ -165,12 +171,11 @@ if __name__ == "__main__":
         folder_to_sort = sys.argv[1]
 
     if os.path.isdir(folder_to_sort):
-        response = sort_files(folder_to_sort)
-
-        print(
-            f"Files at {folder_to_sort} sorted successfully, {response[0]} files relocated"
-        )
-        if response[1]:
-            print(f"Unknown extensions: {response[1]}")
+        new_folders = sort_files(folder_to_sort)
+        print(f"Files at {folder_to_sort} sorted successfully")
+        print(f"Files moved to new folders based on extensions:")
+        for key, value in new_folders.items():
+            print(key + ":")
+            print(value)
     else:
         print(f"{folder_to_sort} is not a folder")

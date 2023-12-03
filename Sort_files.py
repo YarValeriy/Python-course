@@ -82,7 +82,7 @@ def sort_files(folder_path):
         "unknown": [],
     }
 
-    # file_moved = {key: [] for key, value in categories.items()}
+    file_moved = {key: [] for key, value in categories.items()}
 
     # Create folders if they don't exist
     for category in categories:
@@ -120,14 +120,15 @@ def sort_files(folder_path):
             # Move the file to the appropriate folder
             destination_folder = os.path.join(folder_path, file_category)
             shutil.move(file_path, os.path.join(destination_folder, n_file))
-            print(
-                f"File {file_path} moved to {destination_folder} as {n_file}"
-            )  # to meet requirements "List of relocated files by categories"
-            # file_moved[file_category].append(n_file)
+            # print(
+            #     f"File {file_path} moved to {destination_folder} as {n_file}"
+            # )  # to meet requirements "List of relocated files by categories"
+            if n_file not in file_moved[file_category]:
+                file_moved[file_category].append(n_file)
 
     # Unpack archive files
-    archives_folder = os.path.join(folder_path, "Archives")
-    for root, dirs, files in os.walk(os.path.join(folder_path, "Archives")):
+    archives_folder = os.path.join(folder_path, "archives")
+    for root, dirs, files in os.walk(os.path.join(folder_path, "archives")):
         for file in files:
             file_path = os.path.join(root, file)
             archive_name = file.split(".")[0]
@@ -161,7 +162,7 @@ def sort_files(folder_path):
                 shutil.rmtree(folder_path, ignore_errors=True)
                 print(f"Empty {folder_path} deleted")
 
-    return categories
+    return (categories, file_moved)
 
 
 if __name__ == "__main__":
@@ -171,11 +172,13 @@ if __name__ == "__main__":
         folder_to_sort = sys.argv[1]
 
     if os.path.isdir(folder_to_sort):
-        new_folders = sort_files(folder_to_sort)
+        new_folders, f_moved = sort_files(folder_to_sort)
         print(f"Files at {folder_to_sort} sorted successfully")
         print(f"Files moved to new folders based on extensions:")
         for key, value in new_folders.items():
-            print(key + ":")
-            print(value)
+            if f_moved[key]:
+                print(key + ":")
+                print(value)
+                print(f_moved[key])
     else:
         print(f"{folder_to_sort} is not a folder")

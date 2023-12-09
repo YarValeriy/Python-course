@@ -171,16 +171,15 @@ def sort_files():
                 shutil.rmtree(folder_path, ignore_errors=True)
                 print(f"Empty {folder_path} deleted")
 
-        print(f"Files at {folder_path} sorted successfully")
-        print(f"Files moved to new folders based on extensions:")
+    print(f"Files at {folder_path} sorted successfully")
+    print(f"Files moved to new folders based on extensions:")
 
-        for key, value in categories.items():
-            if file_moved[key]:
-                print(f'{key}: {value}')
-                # print(value)
-                print(file_moved[key])
-
-    return
+    for key, value in categories.items():
+        if file_moved[key]:
+            print(f'{key} {value}:')
+            print(f'{file_moved[key]}\n')
+    
+    return()
 
 
 if __name__ == "__main__":

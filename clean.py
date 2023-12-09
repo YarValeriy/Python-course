@@ -69,7 +69,7 @@ def normalize(string):
     return string.translate(trans)
 
 
-def sort_files(folder_path):
+def sort_files():
     # Define folder names for each category
     categories = {
         "images": ["JPEG", "PNG", "JPG", "SVG", "BMP"],
@@ -83,6 +83,15 @@ def sort_files(folder_path):
     }
 
     file_moved = {key: [] for key, value in categories.items()}
+
+    if len(sys.argv) < 2:
+        folder_path = input("Enter the folder path: ")
+    else:
+        folder_path = sys.argv[1]
+
+    if not os.path.isdir(folder_path):
+        print(f"{folder_path} is not a folder")
+        return
 
     # Create folders if they don't exist
     for category in categories:
@@ -162,23 +171,34 @@ def sort_files(folder_path):
                 shutil.rmtree(folder_path, ignore_errors=True)
                 print(f"Empty {folder_path} deleted")
 
-    return (categories, file_moved)
+        print(f"Files at {folder_path} sorted successfully")
+        print(f"Files moved to new folders based on extensions:")
+
+        for key, value in categories.items():
+            if file_moved[key]:
+                print(f'{key}: {value}')
+                # print(value)
+                print(file_moved[key])
+
+    return
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        folder_to_sort = input("Enter the folder path: ")
-    else:
-        folder_to_sort = sys.argv[1]
+    sort_files()
 
-    if os.path.isdir(folder_to_sort):
-        new_folders, f_moved = sort_files(folder_to_sort)
-        print(f"Files at {folder_to_sort} sorted successfully")
-        print(f"Files moved to new folders based on extensions:")
-        for key, value in new_folders.items():
-            if f_moved[key]:
-                print(key + ":")
-                print(value)
-                print(f_moved[key])
-    else:
-        print(f"{folder_to_sort} is not a folder")
+    # if len(sys.argv) < 2:
+    #     folder_to_sort = input("Enter the folder path: ")
+    # else:
+    #     folder_to_sort = sys.argv[1]
+
+    # if os.path.isdir(folder_to_sort):
+    #     new_folders, f_moved = sort_files(folder_to_sort)
+    #     print(f"Files at {folder_to_sort} sorted successfully")
+    #     print(f"Files moved to new folders based on extensions:")
+    #     for key, value in new_folders.items():
+    #         if f_moved[key]:
+    #             print(key + ":")
+    #             print(value)
+    #             print(f_moved[key])
+    # else:
+    #     print(f"{folder_to_sort} is not a folder")
